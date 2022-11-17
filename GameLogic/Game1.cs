@@ -2,7 +2,7 @@
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
 
-namespace RTS0815
+namespace GameLogic
 {
     public class Game1 : Game
     {
