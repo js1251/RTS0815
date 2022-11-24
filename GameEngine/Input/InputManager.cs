@@ -26,8 +26,19 @@ public enum MouseButtons {
 }
 
 public sealed class InputManager {
+    /// <summary>
+    /// The current position of the cursor on the screen.
+    /// </summary>
     public Vector2 CursorPosition { get; private set; }
+
+    /// <summary>
+    /// The current scroll wheel value.
+    /// </summary>
     public float CursorScrollValue { get; private set; }
+
+    /// <summary>
+    /// The difference between the current and the previous scroll wheel value.
+    /// </summary>
     public float CursorScrollValueDelta { get; private set; }
 
     private Dictionary<Keys, InputAction> mKeyMapping;
@@ -41,6 +52,10 @@ public sealed class InputManager {
     private double mCurrentTime;
     private double mDeltaTime;
 
+    /// <summary>
+    /// The InputManager abstracts hardware inputs into <see cref="InputAction"/>.
+    /// Provides methods to check if certain input criteria are met.
+    /// </summary>
     public InputManager() {
         mCurrentActions = new HashSet<InputAction>();
         mPreviousActions = new HashSet<InputAction>();
@@ -50,6 +65,11 @@ public sealed class InputManager {
         (mLastActionTimes, mHoldTimes) = InitializeActionTimes();
     }
 
+    /// <summary>
+    /// Sets the <see cref="Keys"/> mapping for the given <see cref="InputAction"/>.
+    /// </summary>
+    /// <param name="action">The action that should be triggered if the given <see cref="Keys"/> is pressed</param>
+    /// <param name="input">The <see cref="Keys"/> that needs to be pressed to trigger the <see cref="InputAction"/>.</param>
     public void SetMapping(InputAction action, Keys input) {
         if (mKeyMapping.ContainsKey(input)) {
             mKeyMapping[input] = action;
@@ -59,6 +79,11 @@ public sealed class InputManager {
         mKeyMapping.Add(input, action);
     }
 
+    /// <summary>
+    /// Sets the mouse button mapping for the given <see cref="InputAction"/>.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be triggered if the given <see cref="MouseButtons"/> is pressed</param>
+    /// <param name="input">The <see cref="MouseButtons"/> that needs to be pressed to trigger the <see cref="InputAction"/>.</param>
     public void SetMapping(InputAction action, MouseButtons input) {
         if (mMouseMapping.ContainsKey(input)) {
             mMouseMapping[input] = action;
@@ -68,10 +93,18 @@ public sealed class InputManager {
         mMouseMapping.Add(input, action);
     }
 
+    /// <summary>
+    /// Resets the key/ mouse to <see cref="InputAction"/> mapping to the default values.
+    /// </summary>
     public void ResetMapping() {
         (mKeyMapping, mMouseMapping) = LoadDefaultMapping();
     }
 
+    /// <summary>
+    /// Checks if a given <see cref="InputAction"/> is currently pressed.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be checked.</param>
+    /// <returns>True if the <see cref="InputAction"/> is currently pressed.</returns>
     public bool IsPressed(InputAction action) {
         if (mConsumedActions.Contains(action)) {
             return false;
@@ -80,6 +113,11 @@ public sealed class InputManager {
         return mCurrentActions.Contains(action);
     }
 
+    /// <summary>
+    /// Checks if a given <see cref="InputAction"/> has just been pressed (hasn't been pressed the frame before).
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be checked.</param>
+    /// <returns>True if the <see cref="InputAction"/> has just been pressed.</returns>
     public bool JustPressed(InputAction action) {
         if (mConsumedActions.Contains(action)) {
             return false;
@@ -88,6 +126,11 @@ public sealed class InputManager {
         return IsPressed(action) && !mPreviousActions.Contains(action);
     }
 
+    /// <summary>
+    /// Checks if a given <see cref="InputAction"/> has just been released (has been pressed the frame before but is no longer pressed now).
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be checked.</param>
+    /// <returns>True if the <see cref="InputAction"/> has just been released.</returns>
     public bool JustReleased(InputAction action) {
         if (mConsumedActions.Contains(action)) {
             return false;
@@ -96,6 +139,12 @@ public sealed class InputManager {
         return !IsPressed(action) && mPreviousActions.Contains(action);
     }
 
+    /// <summary>
+    /// Checks if a given <see cref="InputAction"/> has been held for a given minimum amount of time.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be checked.</param>
+    /// <param name="minHoldTime">The minimum amount of time the <see cref="InputAction"/> should be held for already.</param>
+    /// <returns>True if the <see cref="InputAction"/> has been held for at least the given amount of time.</returns>
     public bool IsHeld(InputAction action, float minHoldTime = 0.5f) {
         if (mConsumedActions.Contains(action)) {
             return false;
@@ -104,6 +153,12 @@ public sealed class InputManager {
         return IsPressed(action) && mHoldTimes[action] >= minHoldTime;
     }
 
+    /// <summary>
+    /// Checks if a given <see cref="InputAction"/> has been double pressed.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> that should be checked.</param>
+    /// <param name="maxTimeBetweenPresses">The maximum amount of time between the two <see cref="InputAction"/> trigger events.</param>
+    /// <returns>True if the <see cref="InputAction"/> has been double pressed within the given amount of time.</returns>
     public bool IsDoublePressed(InputAction action, float maxTimeBetweenPresses = 0.5f) {
         if (mConsumedActions.Contains(action)) {
             return false;
@@ -119,6 +174,10 @@ public sealed class InputManager {
         return difference <= maxTimeBetweenPresses;
     }
 
+    /// <summary>
+    /// Consumes the given <see cref="InputAction"/>. Consumed <see cref="InputAction"/> will no longer register as a currently active <see cref="InputAction"/>.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> to consume.</param>
     public void Consume(InputAction action) {
         mConsumedActions.Add(action);
     }
