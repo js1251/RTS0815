@@ -1,2 +1,2 @@
-﻿using var game = new GameLogic.Game1();
+﻿using var game = new GameLogic.RTS0815();
 game.Run();
