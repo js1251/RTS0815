@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using GameEngine.util;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Input;
 
@@ -27,19 +28,24 @@ public enum MouseButtons {
 
 public sealed class InputManager {
     /// <summary>
-    /// The current position of the cursor on the screen.
+    /// The current position of the cursor on the application window.
     /// </summary>
-    public Vector2 CursorPosition { get; private set; }
+    public Vector2 GlobalCursorPosition { get; private set; }
+
+    /// <summary>
+    /// The current position of the cursor on the local screen.
+    /// </summary>
+    public Vector2 LocalCursorPosition { get; set; }
 
     /// <summary>
     /// The current scroll wheel value.
     /// </summary>
-    public float CursorScrollValue { get; private set; }
+    public int CursorScrollValue { get; private set; }
 
     /// <summary>
     /// The difference between the current and the previous scroll wheel value.
     /// </summary>
-    public float CursorScrollValueDelta { get; private set; }
+    public int CursorScrollValueDelta { get; private set; }
 
     private Dictionary<Keys, InputAction> mKeyMapping;
     private Dictionary<MouseButtons, InputAction> mMouseMapping;
@@ -91,6 +97,34 @@ public sealed class InputManager {
         }
 
         mMouseMapping.Add(input, action);
+    }
+
+    /// <summary>
+    /// Removes the input mapping for the given <see cref="InputAction"/>.
+    /// </summary>
+    /// <param name="action">The <see cref="InputAction"/> to remove mappings for.</param>
+    public void RemoveMapping(InputAction action) {
+        if (mKeyMapping.ContainsValue(action)) {
+            foreach (var key in mKeyMapping.Keys) {
+                if (mKeyMapping[key] != action) {
+                    continue;
+                }
+
+                mKeyMapping.Remove(key);
+                break;
+            }
+        }
+
+        if (mMouseMapping.ContainsValue(action)) {
+            foreach (var key in mMouseMapping.Keys) {
+                if (mMouseMapping[key] != action) {
+                    continue;
+                }
+
+                mMouseMapping.Remove(key);
+                break;
+            }
+        }
     }
 
     /// <summary>
@@ -184,8 +218,8 @@ public sealed class InputManager {
 
     public void Update(GameTime gameTime, KeyboardState keyboardState, MouseState mouseState) {
         // remember the gameTime (useful for double click query method)
-        mCurrentTime = gameTime.TotalGameTime.TotalSeconds;
-        mDeltaTime = gameTime.ElapsedGameTime.TotalSeconds;
+        mCurrentTime = gameTime.CurTime();
+        mDeltaTime = gameTime.DeltaTime();
 
         // the current actions from the previous frame are now the previous actions
         mPreviousActions = new HashSet<InputAction>(mCurrentActions);
@@ -224,11 +258,15 @@ public sealed class InputManager {
 
     private void GetMouseInput(MouseState mouseState) {
         // update the cursor position
-        CursorPosition = mouseState.Position.ToVector2();
+        GlobalCursorPosition = mouseState.Position.ToVector2();
 
         // update the cursor scroll values
-        CursorScrollValueDelta = CursorScrollValue - mouseState.ScrollWheelValue;
-        CursorScrollValue = mouseState.ScrollWheelValue;
+        var mouseScroll = mouseState.ScrollWheelValue;
+        
+        CursorScrollValueDelta = mouseScroll != CursorScrollValue
+            ? mouseScroll - CursorScrollValue
+            : 0;
+        CursorScrollValue = mouseScroll;
 
         if (mouseState.LeftButton == ButtonState.Pressed) {
             var action = mMouseMapping[MouseButtons.Left];

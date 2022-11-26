@@ -1,4 +1,5 @@
 ﻿using GameEngine.Input;
+using GameEngine.Rendering;
 using GameEngine.Screens;
 using GameLogic.Screens.Menu.MainMenu;
 using Microsoft.Xna.Framework;
@@ -11,7 +12,7 @@ public class RTS0815 : Game {
     private GraphicsDeviceManager mGraphics;
     private SpriteBatch mSpriteBatch;
 
-    private readonly ScreenManager mScreenManager;
+    private readonly ScreenStack mScreenManager;
     private readonly InputManager mInputManager;
 
     public RTS0815() {
@@ -21,8 +22,11 @@ public class RTS0815 : Game {
 
         mInputManager = new InputManager();
 
-        mScreenManager = new ScreenManager(mInputManager);
+        mScreenManager = new ScreenStack(mInputManager);
         mScreenManager.PushScreen(new MainMenuScreen());
+
+        mGraphics.PreferredBackBufferWidth = Application.ScrW;
+        mGraphics.PreferredBackBufferHeight = Application.ScrH;
     }
 
     protected override void Initialize() {

@@ -1,4 +1,5 @@
 ﻿using GameEngine.Input;
+using GameEngine.Rendering;
 using GameEngine.Screens;
 using GameLogic.Screens.Pause;
 using Microsoft.Xna.Framework;
@@ -6,31 +7,28 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLogic.Screens.Game;
 
-internal class GameScreen : IScreen {
-    public bool DrawScreen { get; set; }
-    public bool UpdateScreen { get; set; }
-    public bool DrawLower { get; set; }
-    public bool UpdateLower { get; set; }
-    public ScreenManager ScreenManager { get; set; }
-
+internal class GameScreen : Screen {
     internal GameScreen() {
+        Camera = new TransformCamera();
         DrawScreen = true;
         UpdateScreen = true;
         DrawLower = false;
         UpdateLower = false;
     }
 
-    public void Update(GameTime gameTime, InputManager inputManager) {
+    public override void Update(GameTime gameTime, InputManager inputManager) {
+        base.Update(gameTime, inputManager);
+
         if (inputManager.JustPressed(InputAction.Quit)) {
-            ScreenManager.PopScreen();
+            ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Quit);
         } else if (inputManager.JustPressed(InputAction.Pause)) {
-            ScreenManager.PushScreen(new PauseScreen());
+            ScreenStack.PushScreen(new PauseScreen());
             inputManager.Consume(InputAction.Pause);
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch) {
-        System.Diagnostics.Debug.WriteLine("Drawing game screen");
+    public override void Draw(SpriteBatch spriteBatch) {
+        spriteBatch.DrawFilledSquare(new Vector2(100, 100), 100, Color.Red);
     }
 }

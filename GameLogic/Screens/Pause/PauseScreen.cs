@@ -1,28 +1,34 @@
 ﻿using GameEngine.Input;
+using GameEngine.Rendering;
 using GameEngine.Screens;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameLogic.Screens.Pause;
 
-internal class PauseScreen : IScreen {
-    public bool DrawScreen => true;
-    public bool UpdateScreen => true;
-    public bool DrawLower => true;
-    public bool UpdateLower => false;
-    public ScreenManager ScreenManager { get; set; }
+internal class PauseScreen : Screen {
+    public PauseScreen() {
+        Camera = new Camera();
 
-    public void Update(GameTime gameTime, InputManager inputManager) {
+        UpdateScreen = true;
+        DrawScreen = true;
+        UpdateLower = false;
+        DrawLower = true;
+    }
+
+    public override void Update(GameTime gameTime, InputManager inputManager) {
+        base.Update(gameTime, inputManager);
+
         if (inputManager.JustPressed(InputAction.Pause)) {
-            ScreenManager.PopScreen();
+            ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Pause);
         } else if (inputManager.JustPressed(InputAction.Quit)) {
-            ScreenManager.PopScreen();
+            ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Quit);
         }
     }
 
-    public void Draw(SpriteBatch spriteBatch) {
-        System.Diagnostics.Debug.WriteLine("Drawing pause screen");
+    public override void Draw(SpriteBatch spriteBatch) {
+        spriteBatch.DrawFilledSquare(new Vector2(100, 100), 100, Color.Green);
     }
 }

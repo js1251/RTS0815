@@ -5,19 +5,19 @@ using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Screens;
 
-public sealed class ScreenManager {
-    private readonly LinkedList<IScreen> mScreens;
+public sealed class ScreenStack {
+    private readonly LinkedList<Screen> mScreens;
     private readonly InputManager mInputManager;
 
-    public ScreenManager(InputManager inputManager) {
-        mScreens = new LinkedList<IScreen>();
+    public ScreenStack(InputManager inputManager) {
+        mScreens = new LinkedList<Screen>();
 
         mInputManager = inputManager;
     }
 
-    public void PushScreen(IScreen screen) {
+    public void PushScreen(Screen screen) {
         mScreens.AddFirst(screen);
-        screen.ScreenManager = this;
+        screen.ScreenStack = this;
     }
 
     public void PopScreen() {
@@ -44,7 +44,7 @@ public sealed class ScreenManager {
         DrawScreen(spriteBatch, mScreens.First);
     }
 
-    private void UpdateScreen(GameTime gameTime, LinkedListNode<IScreen> screenNode) {
+    private void UpdateScreen(GameTime gameTime, LinkedListNode<Screen> screenNode) {
         // Note: Update is done top to bottom
 
         var screen = screenNode.Value;
@@ -60,7 +60,7 @@ public sealed class ScreenManager {
         }
     }
 
-    private static void DrawScreen(SpriteBatch spriteBatch, LinkedListNode<IScreen> screenNode) {
+    private static void DrawScreen(SpriteBatch spriteBatch, LinkedListNode<Screen> screenNode) {
         // Note: Draw is done bottom to top
 
         var screen = screenNode.Value;
@@ -72,7 +72,9 @@ public sealed class ScreenManager {
 
         // if the screen itself needs to be drawn, draw it
         if (screen.DrawScreen) {
+            screen.PreDraw(spriteBatch);
             screen.Draw(spriteBatch);
+            screen.PostDraw(spriteBatch);
         }
     }
 }
