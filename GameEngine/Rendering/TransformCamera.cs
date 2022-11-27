@@ -73,28 +73,82 @@ public class TransformCamera : Camera {
         mZoomAmount = 0f;
     }
 
-    public bool IsInView(Vector2 position) {
-        return Viewport.Contains(position);
+    /// <summary>
+    /// Checks if a given point is within the camera's viewport.
+    /// </summary>
+    /// <param name="point">The point to check.</param>
+    /// <returns>True if the point is contained in the camera's viewport.</returns>
+    public bool IsInView(Vector2 point) {
+        return Viewport.Contains(point);
     }
 
+    /// <summary>
+    /// Checks if a given rectangle intersects with the camera's viewport.
+    /// </summary>
+    /// <param name="rectangle">The rectangle to check.</param>
+    /// <returns>True if the rectangle intersects with the camera's viewport.</returns>
     public bool IsInView(Rectangle rectangle) {
         return Viewport.Intersects(rectangle);
     }
 
+    /// <summary>
+    /// Moves the camera by a given amount.
+    /// </summary>
+    /// <param name="amount">The amount to move the camera by.</param>
     public void Move(Vector2 amount) {
         mMoveAmount += amount;
     }
 
-    public void MoveTo(Vector2 position) {
+    /// <summary>
+    /// Jumps the camera to a given position.
+    /// </summary>
+    /// <param name="position">The position to jump the camera to.</param>
+    public void JumpMoveTo(Vector2 position) {
         mMoveAmount += position - mCurrentPosition;
     }
 
+    /// <summary>
+    /// Moves the camera to a given position over a given time.
+    /// </summary>
+    /// <param name="position">The position to move the camera to.</param>
+    /// <param name="seconds">The amount of time the movement should take.</param>
+    public void MoveTo(Vector2 position, float seconds) {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Zooms the camera by a given amount.
+    /// </summary>
+    /// <param name="amount">The amount to zoom the camera by.</param>
     public void Zoom(float amount) {
         mZoomAmount += amount;
     }
 
-    public void ZoomTo(float factor) {
+    /// <summary>
+    /// Jumps the cameras zoom to a given amount.
+    /// </summary>
+    /// <param name="factor">The zoom factor to jump the camera's zoom to.</param>
+    public void JumpZoomTo(float factor) {
         mZoomAmount = factor - mCurrentZoom;
+    }
+
+    /// <summary>
+    /// Zooms the camera to a given factor over a given time.
+    /// </summary>
+    /// <param name="factor">The zoom factor to jump the camera's zoom to.</param>
+    /// <param name="seconds">The amount of time the zoom should take.</param>
+    public void ZoomTo(float factor, float seconds) {
+        throw new NotImplementedException();
+    }
+
+    /// <summary>
+    /// Sets the cameras position and zoom to given values over a given time.
+    /// </summary>
+    /// <param name="zoom">The zoom factor to jump the camera's zoom to.</param>
+    /// <param name="position">The position to move the camera to.</param>
+    /// <param name="seconds">The amount of time the zoom should take.</param>
+    public void SetCamera(float zoom, Vector2 position, float seconds) {
+        throw new NotImplementedException();
     }
 
     private void UpdateViewPort() {
