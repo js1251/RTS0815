@@ -26,6 +26,10 @@ public static class DrawExtension {
         spriteBatch.DrawOutlinePolygon(polygons, color, thickness, alpha);
     }
 
+    public static void DrawOutlineRectangle(this SpriteBatch spriteBatch, Rectangle rectangle, Color color, float thickness = 1f, float alpha = 1f) {
+        DrawOutlineRectangle(spriteBatch, rectangle.Location.ToVector2(), rectangle.Size.ToVector2(), color, thickness, alpha);
+    }
+
     public static void DrawFilledSquare(this SpriteBatch spriteBatch, Vector2 pos, float size, Color color, float alpha = 1f, float rotation = 0f) {
         spriteBatch.DrawFilledRectangle(pos, size, size, color, alpha, rotation);
     }
