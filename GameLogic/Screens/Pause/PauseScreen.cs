@@ -17,8 +17,6 @@ internal class PauseScreen : Screen {
     }
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
-        base.Update(gameTime, inputManager);
-
         if (inputManager.JustPressed(InputAction.Pause)) {
             ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Pause);
@@ -28,7 +26,11 @@ internal class PauseScreen : Screen {
         }
     }
 
+    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) { }
+
     public override void Draw(SpriteBatch spriteBatch) {
         spriteBatch.DrawFilledSquare(new Vector2(100, 100), 100, Color.Green);
     }
+
+    public override void DrawDebug(SpriteBatch spriteBatch) { }
 }

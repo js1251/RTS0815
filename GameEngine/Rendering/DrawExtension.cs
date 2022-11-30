@@ -116,7 +116,7 @@ public static class DrawExtension {
     #region Helpers
 
     private static Texture2D GetTexture(this SpriteBatch spriteBatch) {
-        if (sTexture != null) {
+        if (sTexture is not null) {
             return sTexture;
         }
 

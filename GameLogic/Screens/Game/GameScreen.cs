@@ -17,18 +17,27 @@ internal class GameScreen : Screen {
     }
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
-        base.Update(gameTime, inputManager);
-
         if (inputManager.JustPressed(InputAction.Quit)) {
             ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Quit);
         } else if (inputManager.JustPressed(InputAction.Pause)) {
             ScreenStack.PushScreen(new PauseScreen());
             inputManager.Consume(InputAction.Pause);
+        } else if (inputManager.JustPressed(InputAction.Enter)) {
+            ToggleDebug();
+            inputManager.Consume(InputAction.Enter);
         }
+
+        var test = GetDebugInput("test", 0);
     }
 
-    public override void Draw(SpriteBatch spriteBatch) {
-        spriteBatch.DrawFilledSquare(new Vector2(100, 100), 100, Color.Red);
+    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) { }
+
+    public override void Draw(SpriteBatch spriteBatch) { }
+
+    public override void DrawDebug(SpriteBatch spriteBatch) {
+        // origin axis lines
+        spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitX * 100, Color.Red);
+        spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitY * 100, Color.Green);
     }
 }

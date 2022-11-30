@@ -132,8 +132,8 @@ public abstract class UiElement {
     protected UiElement Parent { get; set; }
     protected List<UiElement> Children { get; }
 
-    private Vector2 mSizeRelative;
-    private Vector2 mPositionRelative;
+    private Vector2 mSizeRelative = Vector2.One;
+    private Vector2 mPositionRelative = Vector2.Zero;
     private bool mIsEnabled = true;
     private UiDockType mDockType;
     private bool mIsDirty;

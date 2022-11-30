@@ -24,6 +24,10 @@ public sealed class ScreenStack {
         mScreens.RemoveFirst();
     }
 
+    public void RemoveScreen(Screen screen) {
+        mScreens.Remove(screen);
+    }
+
     public bool IsEmpty() {
         return mScreens.Count <= 0;
     }
@@ -51,7 +55,9 @@ public sealed class ScreenStack {
 
         // if the screen itself needs to be updated, draw it
         if (screen.UpdateScreen) {
+            screen.EarlyUpdate(gameTime, mInputManager);
             screen.Update(gameTime, mInputManager);
+            screen.LateUpdate(gameTime, mInputManager);
         }
 
         // if the screen below needs to be updated, update it first

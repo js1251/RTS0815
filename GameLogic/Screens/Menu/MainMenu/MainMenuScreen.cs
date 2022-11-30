@@ -9,7 +9,7 @@ using Microsoft.Xna.Framework.Graphics;
 namespace GameLogic.Screens.Menu.MainMenu;
 
 internal class MainMenuScreen : Screen {
-    private RootPane mMenuRootPane;
+    private readonly RootPane mMenuRootPane;
 
     public MainMenuScreen() {
         Camera = new Camera();
@@ -29,8 +29,6 @@ internal class MainMenuScreen : Screen {
     }
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
-        base.Update(gameTime, inputManager);
-
         if (inputManager.JustPressed(InputAction.Quit)) {
             ScreenStack.PopScreen();
             inputManager.Consume(InputAction.Quit);
@@ -39,7 +37,15 @@ internal class MainMenuScreen : Screen {
         mMenuRootPane.Update(gameTime, inputManager);
     }
 
+    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) {
+        throw new System.NotImplementedException();
+    }
+
     public override void Draw(SpriteBatch spriteBatch) {
         mMenuRootPane.Draw(spriteBatch);
+    }
+
+    public override void DrawDebug(SpriteBatch spriteBatch) {
+        throw new System.NotImplementedException();
     }
 }

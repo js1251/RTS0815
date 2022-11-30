@@ -1,15 +1,14 @@
 ﻿using System;
+using GameEngine.Debug;
 using GameEngine.Input;
-using GameEngine.Rendering;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Ui;
-
 public sealed class Button : UiElement {
     public Action OnClick { get; set; }
 
-    public Button(string text) : base() {
+    public Button(string text) {
         // AddElement(new Background(Color.Blue));
         // AddElement(new Label(text));
     }
