@@ -11,8 +11,12 @@ public abstract class Screen {
     public bool DrawLower { get; protected set; } = false;
     public bool UpdateLower { get; protected set; } = false;
     public ScreenStack ScreenStack { protected get; set; }
-    public Camera Camera { protected get; set; } = new Camera();
+    public Camera Camera { protected get; set; }
     private DebugScreen DebugScreen { get; set; }
+
+    protected Screen() {
+        Camera = new Camera();
+    }
 
     protected Vector2 GlobalToLocal(Vector2 global) {
         return Camera.GlobalToLocal(global);
