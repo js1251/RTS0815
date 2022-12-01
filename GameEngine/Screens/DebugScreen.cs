@@ -29,11 +29,16 @@ internal class DebugScreen : Screen {
             SizeRelative = new Vector2(0.2f, 0.5f)
         };
 
+        mDebugStackPanel.AddElement(new Label("Debug Inputs") {
+            SizeRelative = new Vector2(1, 0.1f),
+        });
+
         mDebugInputPanel.AddElement(mDebugStackPanel);
     }
 
     internal T GetDebugValue<T>(string name, T defaultValue) {
         if (mDebugValues.ContainsKey(name)) {
+            mDebugValues[name].Input = mDebugInputs[name].Text;
             return mDebugValues[name].ParseAs<T>();
         }
 
@@ -41,14 +46,21 @@ internal class DebugScreen : Screen {
         var horizontalStackPanel = new StackPanel {
             Orientation = StackPanelOrientation.Horizontal,
             SizeRelative = new Vector2(1, 0.1f),
-            Background = Color.Red * 0.5f
+            Padding = Vector4.One * 4,
         };
 
         // add the name of the input as a label
-        horizontalStackPanel.AddElement(new Label(name));
+        horizontalStackPanel.AddElement(new Label(name + " (" + typeof(T).Name + "):") {
+            DockType = UiDockType.Left,
+            SizeRelative = new Vector2(0.5f, 1),
+        });
 
         // add textbox next to label
-        var input = new TextBox();
+        var input = new TextBox {
+            DockType = UiDockType.Right,
+            Text = defaultValue.ToString(),
+            SizeRelative = new Vector2(0.5f, 1),
+        };
         horizontalStackPanel.AddElement(input);
 
         // add the horizontal stackpanel to the vertical stackpanel of debug input fields

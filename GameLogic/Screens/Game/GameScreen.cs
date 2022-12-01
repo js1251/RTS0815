@@ -1,4 +1,5 @@
-﻿using GameEngine.Input;
+﻿using GameEngine.Assets;
+using GameEngine.Input;
 using GameEngine.Rendering;
 using GameEngine.Screens;
 using GameLogic.Screens.Pause;
@@ -8,6 +9,8 @@ using Microsoft.Xna.Framework.Graphics;
 namespace GameLogic.Screens.Game;
 
 internal class GameScreen : Screen {
+    private float mDebugValue;
+
     internal GameScreen() {
         Camera = new TransformCamera();
         DrawScreen = true;
@@ -28,12 +31,17 @@ internal class GameScreen : Screen {
             inputManager.Consume(InputAction.Enter);
         }
 
-        var test = GetDebugInput("test", 0);
+        mDebugValue = GetDebugInput<float>("float", 0.15f);
+        GetDebugInput<int>("int", 0);
+        GetDebugInput<double>("double", 0d);
+        GetDebugInput<Vector2>("vector2", Vector2.Zero);
     }
 
     public override void UpdateDebug(GameTime gameTime, InputManager inputManager) { }
 
-    public override void Draw(SpriteBatch spriteBatch) { }
+    public override void Draw(SpriteBatch spriteBatch) {
+        spriteBatch.DrawString(AssetStore.Fonts["Calibri"], "" + mDebugValue, new Vector2(0, 0), 48, Color.White);
+    }
 
     public override void DrawDebug(SpriteBatch spriteBatch) {
         // origin axis lines

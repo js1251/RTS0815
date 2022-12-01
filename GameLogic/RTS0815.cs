@@ -1,4 +1,5 @@
-﻿using GameEngine.Input;
+﻿using GameEngine.Assets;
+using GameEngine.Input;
 using GameEngine.Rendering;
 using GameEngine.Screens;
 using GameLogic.Screens.Menu.MainMenu;
@@ -39,6 +40,8 @@ public class RTS0815 : Game {
 
     protected override void LoadContent() {
         mSpriteBatch = new SpriteBatch(GraphicsDevice);
+
+        AssetStore.LoadAsset<SpriteFont>(Content, "Calibri", "Calibri");
     }
 
     protected override void Update(GameTime gameTime) {

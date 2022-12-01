@@ -111,6 +111,11 @@ public static class DrawExtension {
         DrawOutlinePolygon(spriteBatch, vertex, color, thickness, alpha);
     }
 
+    public static void DrawString(this SpriteBatch spriteBatch, SpriteFont font, string text, Vector2 position, float height, Color color, float alpha = 1f, float rotation = 0f) {
+        var scale = height / font.LineSpacing;
+        spriteBatch.DrawString(font, text, position, color * alpha, rotation, Vector2.Zero, scale, SpriteEffects.None, 0);
+    }
+
     #endregion Api Extensions
 
     #region Helpers

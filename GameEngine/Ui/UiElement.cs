@@ -51,9 +51,9 @@ public abstract class UiElement {
             var xRelative = value.X;
             var yRelative = value.Y;
 
-            if (xRelative is < 0 or > 100 || yRelative is < 0 or > 1) {
-                throw new ArgumentOutOfRangeException(nameof(value), "Relative position must be between 0 and 1");
-            }
+            //if (xRelative is < 0 or > 1 || yRelative is < 0 or > 1) {
+            //    throw new ArgumentOutOfRangeException(nameof(value), "Relative position must be between 0 and 1");
+            //}
 
             mPositionRelative = value;
             mIsDirty = true;
@@ -146,7 +146,10 @@ public abstract class UiElement {
     public void AddElement(UiElement child) {
         Children.Add(child);
         child.Parent = this;
+        OnElementAdded(child);
     }
+
+    protected virtual void OnElementAdded(UiElement child) { }
 
     public void RemoveElement(UiElement child) {
         if (Children.Remove(child)) {

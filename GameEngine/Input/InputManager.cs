@@ -47,6 +47,11 @@ public sealed class InputManager {
     /// </summary>
     public int CursorScrollValueDelta { get; private set; }
 
+    /// <summary>
+    /// The raw text input of the keyboard.
+    /// </summary>
+    public string TextInput { get; private set; } = string.Empty;
+
     private Dictionary<Keys, InputAction> mKeyMapping;
     private Dictionary<MouseButtons, InputAction> mMouseMapping;
 
@@ -57,6 +62,7 @@ public sealed class InputManager {
     private readonly Dictionary<InputAction, double> mHoldTimes;
     private double mCurrentTime;
     private double mDeltaTime;
+    private Keys mLastCharInput;
 
     /// <summary>
     /// The InputManager abstracts hardware inputs into <see cref="InputAction"/>.
@@ -216,6 +222,15 @@ public sealed class InputManager {
         mConsumedActions.Add(action);
     }
 
+    /// <summary>
+    /// Consumes all currently active <see cref="InputAction"/>s.
+    /// </summary>
+    public void ConsumeAll() {
+        foreach (var action in mCurrentActions) {
+            Consume(action);
+        }
+    }
+
     public void Update(GameTime gameTime, KeyboardState keyboardState, MouseState mouseState) {
         // remember the gameTime (useful for double click query method)
         mCurrentTime = gameTime.CurTime();
@@ -240,8 +255,16 @@ public sealed class InputManager {
     }
 
     private void GetKeyboardInput(KeyboardState keyboardState) {
+        TextInput = string.Empty;
+
+        var pressedKeys = keyboardState.GetPressedKeys();
+        if (pressedKeys.Length is 0) {
+            mLastCharInput = Keys.None;
+            return;
+        }
+
         // get the current actions from the current frame
-        foreach (var key in keyboardState.GetPressedKeys()) {
+        foreach (var key in pressedKeys) {
             if (!mKeyMapping.ContainsKey(key)) {
                 continue;
             }
@@ -254,6 +277,34 @@ public sealed class InputManager {
             // remember when the action was last pressed
             mLastActionTimes[action] = mCurrentTime;
         }
+
+        // get the raw text input
+        var firstKey = pressedKeys[0];
+        if (mLastCharInput == firstKey) {
+            return;
+        }
+
+        mLastCharInput = firstKey;
+
+        if (firstKey is Keys.Back) {
+            TextInput += "\b";
+        } else if (firstKey is Keys.Enter) {
+            TextInput += "\r";
+        } else {
+            var character = firstKey.ToChar(GetCurrentModifier(keyboardState));
+            if (character is not null) {
+                TextInput += character;
+            }
+        }
+    }
+
+    private ModifierKey GetCurrentModifier(KeyboardState keyboardState) {
+        var result = ModifierKey.None;
+        result |= keyboardState.IsKeyDown(Keys.LeftShift) || keyboardState.IsKeyDown(Keys.RightShift) ? ModifierKey.Shift : ModifierKey.None;
+        result |= keyboardState.IsKeyDown(Keys.LeftControl) || keyboardState.IsKeyDown(Keys.RightControl) ? ModifierKey.Ctrl : ModifierKey.None;
+        result |= keyboardState.IsKeyDown(Keys.LeftAlt) || keyboardState.IsKeyDown(Keys.RightAlt) ? ModifierKey.Alt : ModifierKey.None;
+        result |= keyboardState.IsKeyDown(Keys.LeftWindows) || keyboardState.IsKeyDown(Keys.RightWindows) ? ModifierKey.Windows : ModifierKey.None;
+        return result;
     }
 
     private void GetMouseInput(MouseState mouseState) {
@@ -262,7 +313,7 @@ public sealed class InputManager {
 
         // update the cursor scroll values
         var mouseScroll = mouseState.ScrollWheelValue;
-        
+
         CursorScrollValueDelta = mouseScroll != CursorScrollValue
             ? mouseScroll - CursorScrollValue
             : 0;
