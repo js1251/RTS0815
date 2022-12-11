@@ -49,16 +49,19 @@ public static class DrawExtension {
     }
 
     public static void DrawLine(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f, float alpha = 1f) {
-        var distance = Vector2.Distance(point1, point2);
+        var length = Vector2.Distance(point1, point2);
         var rotation = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
-        DrawLine(spriteBatch, point1, distance, rotation, color, thickness, alpha);
+        DrawLine(spriteBatch, point1, length, rotation, color, thickness, alpha);
     }
 
     public static void DrawArrow(this SpriteBatch spriteBatch, Vector2 point1, Vector2 point2, Color color, float thickness = 1f, float alpha = 1f) {
-        var distance = (point2 - point1).Length();
-        var dir = (point2 - point1) / distance;
+        var length = (point2 - point1).Length();
+        var dir = (point2 - point1) / length;
+
+        // drawing with rotation overload to avoid one more sqrt call in DrawLine(point1, point2)
+        // length was already calculated and can be reused
         var rotation = (float)Math.Atan2(point2.Y - point1.Y, point2.X - point1.X);
-        DrawLine(spriteBatch, point1, distance, rotation, color, alpha, thickness);
+        DrawLine(spriteBatch, point1, length, rotation, color, thickness, alpha);
 
         var backOffset = -dir * thickness * 10;
         var perpendicular = new Vector2(-dir.Y, dir.X);
