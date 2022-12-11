@@ -41,7 +41,7 @@ public class TextBox : UiElement {
 
         // toggle focus when the user clicks on the textbox
         if (inputManager.JustPressed(InputAction.LeftClick)) {
-            mIsFocused = ContentBounds.Contains(inputManager.LocalCursorPosition);
+            mIsFocused = ContentBounds.Contains(inputManager.GlobalCursorPosition);
 
             if (mIsFocused) {
                 inputManager.Consume(InputAction.LeftClick);
@@ -63,7 +63,7 @@ public class TextBox : UiElement {
             if (character == '\b') {
                 // backspace
                 if (Text.Length > 0) {
-                    Text = Text.Substring(0, Text.Length - 1);
+                    Text = Text[..^1];
                 }
             } else if (character == '\r') {
                 // enter

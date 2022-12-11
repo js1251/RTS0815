@@ -1,5 +1,5 @@
 ﻿using System.Collections.Generic;
-using GameEngine.Debug;
+using GameEngine.Debugging;
 using GameEngine.Input;
 using GameEngine.Ui;
 using Microsoft.Xna.Framework;
@@ -8,19 +8,42 @@ using Microsoft.Xna.Framework.Graphics;
 namespace GameEngine.Screens;
 
 internal class DebugScreen : Screen {
-    private readonly Screen mParentScreen;
-    private readonly Dictionary<string, StringValueParser> mDebugValues;
-    private readonly Dictionary<string, TextBox> mDebugInputs;
+    private class DebugInput<T> {
+        private readonly StringValueParser<T> mParser;
+        private readonly TextBox mTextBox;
+        private T mValue;
+        private string mPreviousInput = string.Empty;
+
+        internal T Value {
+            get {
+                if (mPreviousInput.Equals(mTextBox.Text)) {
+                    return mValue;
+                }
+
+                mParser.Input = mTextBox.Text;
+                mParser.Parse();
+                mValue = mParser.Value;
+                mPreviousInput = mTextBox.Text;
+
+                return mValue;
+            }
+        }
+
+        internal DebugInput(T defaultValue, TextBox textBox) {
+            mParser = new StringValueParser<T>(defaultValue);
+            mTextBox = textBox;
+        }
+    }
+
+    private readonly Dictionary<string, object> mDebugInputs;
     private readonly RootPane mDebugInputPanel;
     private readonly StackPanel mDebugStackPanel;
 
-    internal DebugScreen(Screen parent) {
+    internal DebugScreen() {
         UpdateLower = true;
         DrawLower = true;
 
-        mParentScreen = parent;
-        mDebugValues = new Dictionary<string, StringValueParser>();
-        mDebugInputs = new Dictionary<string, TextBox>();
+        mDebugInputs = new Dictionary<string, object>();
 
         mDebugInputPanel = new RootPane();
         mDebugStackPanel = new StackPanel {
@@ -36,10 +59,13 @@ internal class DebugScreen : Screen {
         mDebugInputPanel.AddElement(mDebugStackPanel);
     }
 
-    internal T GetDebugValue<T>(string name, T defaultValue) {
-        if (mDebugValues.ContainsKey(name)) {
-            mDebugValues[name].Input = mDebugInputs[name].Text;
-            return mDebugValues[name].ParseAs<T>();
+    internal T DebugValue<T>(string name, T defaultValue) {
+        if (mDebugInputs.ContainsKey(name)) {
+            var debugInput = (DebugInput<T>)mDebugInputs[name];
+
+            // TODO: check that name is not already used
+            // --> check type of T of already existing input
+            return debugInput.Value;
         }
 
         // create a horizontal stack panel for the label and input
@@ -56,19 +82,18 @@ internal class DebugScreen : Screen {
         });
 
         // add textbox next to label
-        var input = new TextBox {
+        var textBox = new TextBox {
             DockType = UiDockType.Right,
             Text = defaultValue.ToString(),
             SizeRelative = new Vector2(0.5f, 1),
         };
-        horizontalStackPanel.AddElement(input);
+        horizontalStackPanel.AddElement(textBox);
 
         // add the horizontal stackpanel to the vertical stackpanel of debug input fields
         mDebugStackPanel.AddElement(horizontalStackPanel);
 
         // save the reference
-        mDebugInputs.Add(name, input);
-        mDebugValues.Add(name, new StringValueParser(defaultValue));
+        mDebugInputs.Add(name, new DebugInput<T>(defaultValue, textBox));
 
         // if the input field was just created its value cannot have changed from the default value
         return defaultValue;
@@ -76,14 +101,9 @@ internal class DebugScreen : Screen {
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
         mDebugInputPanel.Update(gameTime, inputManager);
-        mParentScreen.UpdateDebug(gameTime, inputManager);
     }
-
-    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) { }
 
     public override void Draw(SpriteBatch spriteBatch) {
         mDebugInputPanel.Draw(spriteBatch);
     }
-
-    public override void DrawDebug(SpriteBatch spriteBatch) { }
 }

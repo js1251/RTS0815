@@ -1,16 +1,26 @@
 ﻿using System;
-using GameEngine.Debug;
 using GameEngine.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 
 namespace GameEngine.Ui;
+
 public sealed class Button : UiElement {
     public Action OnClick { get; set; }
 
-    public Button(string text) {
-        // AddElement(new Background(Color.Blue));
-        // AddElement(new Label(text));
+    public Color TextColor {
+        get => mLabel.TextColor;
+        set => mLabel.TextColor = value;
+    }
+
+    private readonly Label mLabel;
+
+    public Button(string text = "") {
+        mLabel = new Label(text) {
+            DockType = UiDockType.Center
+        };
+
+        AddElement(mLabel);
     }
 
     protected override void UpdateSelf(GameTime gameTime, InputManager inputManager) {

@@ -7,11 +7,13 @@ namespace GameEngine.Screens;
 
 public sealed class ScreenStack {
     private readonly LinkedList<Screen> mScreens;
+    private readonly DebugScreen mDebugScreen;
     private readonly InputManager mInputManager;
 
     public ScreenStack(InputManager inputManager) {
         mScreens = new LinkedList<Screen>();
 
+        mDebugScreen = new DebugScreen();
         mInputManager = inputManager;
     }
 
@@ -24,10 +26,6 @@ public sealed class ScreenStack {
         mScreens.RemoveFirst();
     }
 
-    public void RemoveScreen(Screen screen) {
-        mScreens.Remove(screen);
-    }
-
     public bool IsEmpty() {
         return mScreens.Count <= 0;
     }
@@ -37,7 +35,23 @@ public sealed class ScreenStack {
             return;
         }
 
+        // setting every update in case there are multiple ScreenStacks
+        ScreenContext.DebugScreen = mDebugScreen;
+
+        if (mInputManager.JustPressed(InputAction.Enter)) {
+            ScreenContext.ToggleDebug();
+            mInputManager.Consume(InputAction.Enter);
+        }
+
+        // update all screens
         UpdateScreen(gameTime, mScreens.First);
+
+        // update debug screen if enabled
+        if (ScreenContext.DebugEnabled) {
+            mDebugScreen.EarlyUpdate(gameTime, mInputManager);
+            mDebugScreen.Update(gameTime, mInputManager);
+            mDebugScreen.LateUpdate(gameTime, mInputManager);
+        }
     }
 
     public void Draw(SpriteBatch spriteBatch) {
@@ -45,13 +59,24 @@ public sealed class ScreenStack {
             return;
         }
 
+        // draw all screens
         DrawScreen(spriteBatch, mScreens.First);
+
+        // draw debug screen if enabled
+        if (ScreenContext.DebugEnabled) {
+            mDebugScreen.PreDraw(spriteBatch);
+            mDebugScreen.Draw(spriteBatch);
+            mDebugScreen.PostDraw(spriteBatch);
+        }
     }
 
     private void UpdateScreen(GameTime gameTime, LinkedListNode<Screen> screenNode) {
         // Note: Update is done top to bottom
 
         var screen = screenNode.Value;
+
+        // update screen context
+        ScreenContext.CurrentScreen = screen;
 
         // if the screen itself needs to be updated, draw it
         if (screen.UpdateScreen) {
@@ -71,6 +96,9 @@ public sealed class ScreenStack {
 
         var screen = screenNode.Value;
 
+        // update screen context
+        ScreenContext.CurrentScreen = screen;
+
         // if the screen below needs to be drawn, draw it first
         if (screen.DrawLower) {
             DrawScreen(spriteBatch, screenNode.Next);
@@ -80,6 +108,7 @@ public sealed class ScreenStack {
         if (screen.DrawScreen) {
             screen.PreDraw(spriteBatch);
             screen.Draw(spriteBatch);
+            ScreenContext.DrawDebug();
             screen.PostDraw(spriteBatch);
         }
     }

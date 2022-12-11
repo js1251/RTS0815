@@ -35,7 +35,7 @@ public sealed class InputManager {
     /// <summary>
     /// The current position of the cursor on the local screen.
     /// </summary>
-    public Vector2 LocalCursorPosition { get; set; }
+    // public Vector2 LocalCursorPosition { get; set; }
 
     /// <summary>
     /// The current scroll wheel value.

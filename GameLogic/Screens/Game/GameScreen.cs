@@ -26,26 +26,21 @@ internal class GameScreen : Screen {
         } else if (inputManager.JustPressed(InputAction.Pause)) {
             ScreenStack.PushScreen(new PauseScreen());
             inputManager.Consume(InputAction.Pause);
-        } else if (inputManager.JustPressed(InputAction.Enter)) {
-            ToggleDebug();
-            inputManager.Consume(InputAction.Enter);
         }
 
-        mDebugValue = GetDebugInput<float>("float", 0.15f);
-        GetDebugInput<int>("int", 0);
-        GetDebugInput<double>("double", 0d);
-        GetDebugInput<Vector2>("vector2", Vector2.Zero);
+        mDebugValue = ScreenContext.DebugValue<float>("float", 0.15f);
+        ScreenContext.DebugValue<int>("int", 0);
+        ScreenContext.DebugValue<double>("double", 0d);
+        ScreenContext.DebugValue<Vector2>("vector2", Vector2.Zero);
     }
-
-    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) { }
 
     public override void Draw(SpriteBatch spriteBatch) {
         spriteBatch.DrawString(AssetStore.Fonts["Calibri"], "" + mDebugValue, new Vector2(0, 0), 48, Color.White);
-    }
 
-    public override void DrawDebug(SpriteBatch spriteBatch) {
-        // origin axis lines
-        spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitX * 100, Color.Red);
-        spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitY * 100, Color.Green);
+        ScreenContext.DebugDraw(() => {
+            // origin axis lines
+            spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitX * 100, Color.Red);
+            spriteBatch.DrawArrow(Vector2.Zero, Vector2.UnitY * 100, Color.Green);
+        });
     }
 }

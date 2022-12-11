@@ -1,5 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using GameEngine.Input;
 using GameEngine.Rendering;
 using Microsoft.Xna.Framework;
@@ -48,13 +47,6 @@ public abstract class UiElement {
     public Vector2 PositionRelative {
         get => mPositionRelative;
         set {
-            var xRelative = value.X;
-            var yRelative = value.Y;
-
-            //if (xRelative is < 0 or > 1 || yRelative is < 0 or > 1) {
-            //    throw new ArgumentOutOfRangeException(nameof(value), "Relative position must be between 0 and 1");
-            //}
-
             mPositionRelative = value;
             mIsDirty = true;
         }
@@ -83,47 +75,7 @@ public abstract class UiElement {
         get => mDockType;
         set {
             mDockType = value;
-
-            // no special calculations are required for absolute docking
-            if (value == UiDockType.Absolute) {
-                return;
-            }
-
-            // update UiElement
             mIsDirty = true;
-
-            // fill docks the UiElement to the top left and makes it as big as its parents bounds
-            if (value == UiDockType.Fill) {
-                mPositionRelative = Vector2.Zero;
-                mSizeRelative = Vector2.One;
-                return;
-            }
-
-            // center, centers the UiElement relative to its parents bounds
-            if (value == UiDockType.Center) {
-                mPositionRelative = new Vector2 {
-                    X = 0.5f - SizeRelative.X / 2f,
-                    Y = 0.5f - SizeRelative.Y / 2f
-                };
-
-                return;
-            }
-
-            // the position is either left or right...
-            if (value is UiDockType.Left or UiDockType.Right) {
-                mPositionRelative.Y = 0.5f - SizeRelative.Y / 2f;
-                mPositionRelative.X = value is UiDockType.Left
-                    ? 0f
-                    : 1f - SizeRelative.X;
-            }
-
-            // ...and top or bottom
-            if (value is UiDockType.Top or UiDockType.Bottom) {
-                mPositionRelative.X = 0.5f - SizeRelative.X / 2f;
-                mPositionRelative.Y = value is UiDockType.Top
-                    ? 0f
-                    : 1f - SizeRelative.Y;
-            }
         }
     }
 
@@ -159,6 +111,7 @@ public abstract class UiElement {
 
     public void Update(GameTime gameTime, InputManager inputManager) {
         if (mIsDirty) {
+            RedoDocking();
             RedoBounds();
         }
 
@@ -198,7 +151,47 @@ public abstract class UiElement {
     protected abstract void DrawSelf(SpriteBatch spriteBatch);
 
     protected bool MouseOver(InputManager inputManager) {
-        return ContentBounds.Contains(inputManager.LocalCursorPosition);
+        return ContentBounds.Contains(inputManager.GlobalCursorPosition);
+    }
+
+    private void RedoDocking() {
+        // no special calculations are required for absolute docking
+        if (DockType == UiDockType.Absolute) {
+            return;
+        }
+
+        // fill docks the UiElement to the top left and makes it as big as its parents bounds
+        if (DockType == UiDockType.Fill) {
+            mPositionRelative = Vector2.Zero;
+            mSizeRelative = Vector2.One;
+            return;
+        }
+
+        // center, centers the UiElement relative to its parents bounds
+        if (DockType == UiDockType.Center) {
+            mPositionRelative = new Vector2 {
+                X = 0.5f - SizeRelative.X / 2f,
+                Y = 0.5f - SizeRelative.Y / 2f
+            };
+
+            return;
+        }
+
+        // the position is either left or right...
+        if (DockType is UiDockType.Left or UiDockType.Right) {
+            mPositionRelative.Y = 0.5f - SizeRelative.Y / 2f;
+            mPositionRelative.X = DockType is UiDockType.Left
+                ? 0f
+                : 1f - SizeRelative.X;
+        }
+
+        // ...and top or bottom
+        if (DockType is UiDockType.Top or UiDockType.Bottom) {
+            mPositionRelative.X = 0.5f - SizeRelative.X / 2f;
+            mPositionRelative.Y = DockType is UiDockType.Top
+                ? 0f
+                : 1f - SizeRelative.Y;
+        }
     }
 
     private void RedoBounds() {

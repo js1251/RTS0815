@@ -20,12 +20,22 @@ internal class MainMenuScreen : Screen {
         DrawLower = false;
 
         mMenuRootPane = new RootPane();
-        mMenuRootPane.AddElement(new Button("Test Button") {
-            SizeRelative = new Vector2(0.1f, 0.05f),
-            DockType = UiDockType.Center,
-            Background = Color.Green,
+
+        var stackPanel = new StackPanel {
+            SizeRelative = new Vector2(0.4f, 0.8f),
+            DockType = UiDockType.Center
+        };
+        
+        mMenuRootPane.AddElement(stackPanel);
+
+        stackPanel.AddElement(new Button("Start Game") {
+            SizeRelative = new Vector2(1f, 0.1f),
+            Padding = Vector4.One * 4,
+            Background = Color.Blue,
+            TextColor = Color.White,
             OnClick = () => ScreenStack.PushScreen(new GameScreen())
         });
+
     }
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
@@ -37,15 +47,7 @@ internal class MainMenuScreen : Screen {
         mMenuRootPane.Update(gameTime, inputManager);
     }
 
-    public override void UpdateDebug(GameTime gameTime, InputManager inputManager) {
-        throw new System.NotImplementedException();
-    }
-
     public override void Draw(SpriteBatch spriteBatch) {
         mMenuRootPane.Draw(spriteBatch);
-    }
-
-    public override void DrawDebug(SpriteBatch spriteBatch) {
-        throw new System.NotImplementedException();
     }
 }
