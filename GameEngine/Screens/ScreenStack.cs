@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using GameEngine.Input;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -18,6 +19,10 @@ public sealed class ScreenStack {
     }
 
     public void PushScreen(Screen screen) {
+        if (mScreens.Contains(screen)) {
+            throw new ArgumentException("Screen is already in the stack");
+        }
+        
         mScreens.AddFirst(screen);
         screen.ScreenStack = this;
     }

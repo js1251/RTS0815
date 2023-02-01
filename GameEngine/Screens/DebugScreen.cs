@@ -1,4 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Diagnostics;
+using GameEngine.Assets;
 using GameEngine.Debugging;
 using GameEngine.Input;
 using GameEngine.Ui;
@@ -38,6 +41,10 @@ internal class DebugScreen : Screen {
     private readonly Dictionary<string, object> mDebugInputs;
     private readonly RootPane mDebugInputPanel;
     private readonly StackPanel mDebugStackPanel;
+    private readonly Stopwatch mDrawStopwatch = new();
+    private readonly Queue<float> mFpsQueue = new();
+    private float mFpsSum;
+    private readonly Label mFpsLabel;
 
     internal DebugScreen() {
         UpdateLower = true;
@@ -46,11 +53,18 @@ internal class DebugScreen : Screen {
         mDebugInputs = new Dictionary<string, object>();
 
         mDebugInputPanel = new RootPane();
+
         mDebugStackPanel = new StackPanel {
             Background = Color.White * 0.5f,
             PositionRelative = Vector2.Zero,
             SizeRelative = new Vector2(0.2f, 0.5f)
         };
+
+        mFpsLabel = new Label {
+            SizeRelative = new Vector2(1, 0.1f),
+        };
+
+        mDebugStackPanel.AddElement(mFpsLabel);
 
         mDebugStackPanel.AddElement(new Label("Debug Inputs") {
             SizeRelative = new Vector2(1, 0.1f),
@@ -105,5 +119,27 @@ internal class DebugScreen : Screen {
 
     public override void Draw(SpriteBatch spriteBatch) {
         mDebugInputPanel.Draw(spriteBatch);
+        mFpsLabel.Text = $"FPS: {CalculateAverageFps()}";
+    }
+
+    private double CalculateAverageFps() {
+        mDrawStopwatch.Stop();
+
+        var frameTimeSeconds = mDrawStopwatch.ElapsedMilliseconds * 0.001f;
+        mFpsQueue.Enqueue(frameTimeSeconds);
+        mFpsSum += frameTimeSeconds;
+
+        mDrawStopwatch.Restart();
+
+        if (mFpsQueue.Count < 60) {
+            return double.NaN;
+        }
+
+        if (mFpsQueue.Count > 60) {
+            mFpsSum -= mFpsQueue.Dequeue();
+        }
+
+
+        return Math.Round(1 / (mFpsSum / mFpsQueue.Count), 1);
     }
 }

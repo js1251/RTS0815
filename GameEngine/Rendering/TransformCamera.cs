@@ -144,11 +144,12 @@ public class TransformCamera : Camera {
     /// <summary>
     /// Sets the cameras position and zoom to given values over a given time.
     /// </summary>
-    /// <param name="zoom">The zoom factor to jump the camera's zoom to.</param>
     /// <param name="position">The position to move the camera to.</param>
+    /// <param name="zoom">The zoom factor to jump the camera's zoom to.</param>
     /// <param name="seconds">The amount of time the zoom should take.</param>
-    public void SetCamera(float zoom, Vector2 position, float seconds) {
-        throw new NotImplementedException();
+    public void SetCamera(Vector2 position, float zoom, float seconds) {
+        MoveTo(position, seconds);
+        ZoomTo(zoom, seconds);
     }
 
     private void UpdateViewPort() {
