@@ -13,6 +13,7 @@ public class SolidColorParticleSystem : IParticleSystem {
     private readonly ParticleEffect _effect;
     private readonly List<Particle> _particles;
     private readonly Vector2 _origin;
+    private TimeSpan _timeSinceLastEmission;
 
     public SolidColorParticleSystem(ParticleEffect effect, Vector2 origin) {
         _effect = effect;
@@ -29,6 +30,11 @@ public class SolidColorParticleSystem : IParticleSystem {
 
     public void EmitOnce(int amount) {
         for (var i = 0; i < amount; i++) {
+            // stop emitting if max number of particles is hit
+            if (_particles.Count > MaxParticles) {
+                return;
+            }
+
             var particle = new Particle(_origin);
             _effect.ApplyInitializers(particle);
             _particles.Add(particle);
@@ -36,12 +42,39 @@ public class SolidColorParticleSystem : IParticleSystem {
     }
 
     public void Update(GameTime gameTime) {
-        // spawn new particles if emitting
-        if (IsEmitting) {
-            var amount = (int)Math.Ceiling(ParticlesPerSecond * gameTime.ElapsedGameTime.TotalSeconds);
-            EmitOnce(amount);
+        SpawnParticlesIfRequired(gameTime);
+        UpdateParticles(gameTime);
+    }
+
+    public void Draw(SpriteBatch spriteBatch) {
+        foreach (var particle in _particles) {
+            particle.Draw(spriteBatch);
+        }
+    }
+
+    private void SpawnParticlesIfRequired(GameTime gameTime) {
+        // only spawn particles if emitting
+        if (!IsEmitting) {
+            // reset last emission to not spawn a lot of particles if emission is turned on again
+            _timeSinceLastEmission = TimeSpan.Zero;
+            return;
         }
 
+        _timeSinceLastEmission += gameTime.ElapsedGameTime;
+
+        // only spawn particles depending on ParticlesPerSecond
+        if (_timeSinceLastEmission.TotalSeconds <= 1f / ParticlesPerSecond) {
+            return;
+        }
+
+        // if the spawn-rate is lower than the tick-rate, multiple particles might need to be spawned
+        var amount = (int)Math.Ceiling(ParticlesPerSecond * gameTime.ElapsedGameTime.TotalSeconds);
+        EmitOnce(amount);
+
+        _timeSinceLastEmission = TimeSpan.Zero;
+    }
+
+    private void UpdateParticles(GameTime gameTime) {
         // iterate over list of particles backwards to allow removal during iteration
         for (var i = _particles.Count - 1; i >= 0; i--) {
             var particle = _particles[i];
@@ -57,12 +90,6 @@ public class SolidColorParticleSystem : IParticleSystem {
 
             // apply effect modifiers
             _effect.ApplyModifiers(particle);
-        }
-    }
-
-    public void Draw(SpriteBatch spriteBatch) {
-        foreach (var particle in _particles) {
-            particle.Draw(spriteBatch);
         }
     }
 }

@@ -26,7 +26,10 @@ internal class GameScreen : Screen {
         DrawLower = false;
         UpdateLower = false;
 
-        mParticleSystems.Add(new SolidColorParticleSystem(new ExampleBloodEffect(), Vector2.Zero));
+        mParticleSystems.Add(new SolidColorParticleSystem(new ExampleBloodEffect(), Vector2.Zero) {
+            MaxParticles = 100,
+            ParticlesPerSecond = 30,
+        });
     }
 
     public override void Update(GameTime gameTime, InputManager inputManager) {
